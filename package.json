@@ -1,0 +1,10 @@
+{
+	"name": "com.aela.utilities.eventful",
+	"version": "1.0.0",
+	"displayName": "Eventful",
+	"description": "A flexible event system for Unity",
+	"unity": "2020.3",
+	"documentationUrl": "https://github.com/aestheticianlabs/com.aela.utilities.scene-transition/",
+	"dependencies": {
+	}
+}
