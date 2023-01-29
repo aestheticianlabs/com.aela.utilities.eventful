@@ -1,11 +1,9 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using NUnit.Framework;
-using AeLa.Utilities.Eventful;
 
 namespace AeLa.Utilities.Eventful.Tests
 {
-	public class EventsTests
+	public class GlobalEventTests
 	{
 		[Test]
 		public void ListenSimple()

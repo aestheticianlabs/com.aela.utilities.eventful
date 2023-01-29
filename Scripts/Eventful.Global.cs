@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace AeLa.Utilities.Eventful
 {
-	public static class Eventful
+	public static partial class Eventful
 	{
 		private static readonly Dictionary<string, List<Delegate>> listeners = new();
 		private static readonly Dictionary<string, List<Delegate>> listenersWithParams = new();
-
+		
 		/// <summary>
 		/// Sends an event without any parameters
 		/// </summary>
@@ -38,79 +38,63 @@ namespace AeLa.Utilities.Eventful
 
 			Send(e);
 		}
-
-		private static void AddListenerInternal(string e, Delegate listener, Dictionary<string, List<Delegate>> target)
-		{
-			if (!target.ContainsKey(e))
-			{
-				target.Add(e, new List<Delegate>());
-			}
-
-			target[e].Add(listener);
-		}
-
+		
 		/// <summary>
 		/// Adds a listener for event <paramref name="e"/>
 		/// </summary>
 		/// <param name="e">The event to listen for</param>
 		/// <param name="listener">The function to be called when <paramref name="e"/> is sent</param>
-		public static void AddListener(string e, Action listener) => AddListenerInternal(e, listener, listeners);
+		public static void AddListener(string e, Action listener) =>
+			AddListenerInternal(e, listener, listeners);
 
-		/// <inheritdoc cref="AddListener"/>
+		/// <inheritdoc cref="AddListener(string, Action)"/>
 		public static void AddListener<T>(string e, Action<T> listener) =>
 			AddListenerInternal(e, listener, listenersWithParams);
 
-		/// <inheritdoc cref="AddListener"/>
+		/// <inheritdoc cref="AddListener(string, Action)"/>
 		public static void AddListener<T1, T2>(string e, Action<T1, T2> listener) =>
 			AddListenerInternal(e, listener, listenersWithParams);
 
-		/// <inheritdoc cref="AddListener"/>
+		/// <inheritdoc cref="AddListener(string, Action)"/>
 		public static void AddListener<T1, T2, T3>(string e, Action<T1, T2, T3> listener) =>
 			AddListenerInternal(e, listener, listenersWithParams);
 
-		/// <inheritdoc cref="AddListener"/>
+		/// <inheritdoc cref="AddListener(string, Action)"/>
 		public static void AddListener<T1, T2, T3, T4>(string e, Action<T1, T2, T3, T4> listener) =>
 			AddListenerInternal(e, listener, listenersWithParams);
 
-		/// <inheritdoc cref="AddListener"/>
+		/// <inheritdoc cref="AddListener(string, Action)"/>
 		public static void AddListener<T1, T2, T3, T4, T5>(string e, Action<T1, T2, T3, T4, T5> listener) =>
 			AddListenerInternal(e, listener, listenersWithParams);
-
-		private static void RemoveListenerInternal(
-			string e, Delegate listener, Dictionary<string, List<Delegate>> target
-		)
-		{
-			if (target.TryGetValue(e, out var list) && list.Remove(listener)) return;
-
-			Logging.Warn($"Could not remove listener for event {e} because it is not registered.");
-		}
 
 		/// <summary>
 		/// Removes the <paramref name="listener"/> for event <paramref name="e"/>
 		/// </summary>
 		/// <param name="e">The event to stop listening for</param>
 		/// <param name="listener">The listener to remove</param>
-		public static void RemoveListener(string e, Action listener) => RemoveListenerInternal(e, listener, listeners);
+		public static void RemoveListener(string e, Action listener) =>
+			RemoveListenerInternal(e, listener, listeners);
 
-		/// <inheritdoc cref="RemoveListener"/>
+		/// <inheritdoc cref="RemoveListener(string, Action)"/>
 		public static void RemoveListener<T>(string e, Action<T> listener) =>
 			RemoveListenerInternal(e, listener, listenersWithParams);
 
-		/// <inheritdoc cref="RemoveListener"/>
+		/// <inheritdoc cref="RemoveListener(string, Action)"/>
 		public static void RemoveListener<T1, T2>(string e, Action<T1, T2> listener) =>
 			RemoveListenerInternal(e, listener, listenersWithParams);
 
-		/// <inheritdoc cref="RemoveListener"/>
+		/// <inheritdoc cref="RemoveListener(string, Action)"/>
 		public static void RemoveListener<T1, T2, T3>(string e, Action<T1, T2, T3> listener) =>
 			RemoveListenerInternal(e, listener, listenersWithParams);
 
-		/// <inheritdoc cref="RemoveListener"/>
+		/// <inheritdoc cref="RemoveListener(string, Action)"/>
 		public static void RemoveListener<T1, T2, T3, T4>(string e, Action<T1, T2, T3, T4> listener) =>
 			RemoveListenerInternal(e, listener, listenersWithParams);
 
-		/// <inheritdoc cref="RemoveListener"/>
+		/// <inheritdoc cref="RemoveListener(string, Action)"/>
 		public static void RemoveListener<T1, T2, T3, T4, T5>(string e, Action<T1, T2, T3, T4, T5> listener) =>
 			RemoveListenerInternal(e, listener, listenersWithParams);
+
 
 		/// <summary>
 		/// Removes all listeners subscribed to event <paramref name="e"/>
@@ -118,17 +102,8 @@ namespace AeLa.Utilities.Eventful
 		/// <param name="e">The target event</param>
 		public static void RemoveAllListeners(string e)
 		{
-			if (listeners.TryGetValue(e, out var list)) list.Clear();
-			if (listenersWithParams.TryGetValue(e, out list)) list.Clear();
-		}
-
-		/// <summary>
-		/// Removes all listeners subscribed to all events
-		/// </summary>
-		public static void RemoveAllListeners()
-		{
-			listeners.Clear();
-			listenersWithParams.Clear();
+			listeners.Remove(e);
+			listenersWithParams.Remove(e);
 		}
 	}
 }
