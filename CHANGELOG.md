@@ -9,3 +9,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release!
 - Send/recieve events with up to 5 parameters.
+- EventfulListener component for receiving events in the editor
