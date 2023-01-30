@@ -154,6 +154,34 @@ namespace AeLa.Utilities.Eventful.Tests
 			
 			Object.Destroy(target);
 		}
+		
+		[Test]
+		public void SendEventWithoutListeners()
+		{
+			const string e = "event";
+			var target = new GameObject();
+			
+			// these should all fail silently
+			Eventful.Send(target, e);
+			Eventful.Send(target, e, 0);
+			Eventful.Send(target, e, 0, 0);
+			Eventful.Send(target, e, 0, 0, 0);
+			Eventful.Send(target, e, 0, 0, 0, 0);
+			Eventful.Send(target, e, 0, 0, 0, 0, 0);
+			
+			Eventful.AddListener(target, "notOurEvent", () => {});
+			
+			// these should all fail silently
+			Eventful.Send(target, e);
+			Eventful.Send(target, e, 0);
+			Eventful.Send(target, e, 0, 0);
+			Eventful.Send(target, e, 0, 0, 0);
+			Eventful.Send(target, e, 0, 0, 0, 0);
+			Eventful.Send(target, e, 0, 0, 0, 0, 0);
+			
+			Eventful.RemoveAllListeners();
+			Object.Destroy(target);
+		}
 
 		[Test]
 		public void RemoveListener()

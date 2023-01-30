@@ -18,8 +18,9 @@ namespace AeLa.Utilities.Eventful
 		public static void Send(GameObject target, string e)
 		{
 			if (!targetedListeners.TryGetValue(target, out var listeners)) return;
+			if (!listeners.TryGetValue(e, out var delegates)) return;
 
-			foreach (var del in listeners[e])
+			foreach (var del in delegates)
 			{
 				del.DynamicInvoke();
 			}
@@ -34,8 +35,9 @@ namespace AeLa.Utilities.Eventful
 		public static void Send(GameObject target, string e, params object[] args)
 		{
 			if (!targetedListenersWithParams.TryGetValue(target, out var listeners)) return;
+			if (!listeners.TryGetValue(e, out var delegates)) return;
 
-			foreach (var del in listeners[e])
+			foreach (var del in delegates)
 			{
 				del.DynamicInvoke(args);
 			}

@@ -126,6 +126,20 @@ namespace AeLa.Utilities.Eventful.Tests
 			Assert.True(called, "Listener not called");
 			called = false;
 		}
+		
+		[Test]
+		public void SendEventWithoutListeners()
+		{
+			const string e = "event";
+			
+			// these should all fail silently
+			Eventful.Send(e);
+			Eventful.Send(e, 0);
+			Eventful.Send(e, 0, 0);
+			Eventful.Send(e, 0, 0, 0);
+			Eventful.Send(e, 0, 0, 0, 0);
+			Eventful.Send(e, 0, 0, 0, 0, 0);
+		}
 
 		[Test]
 		public void RemoveListener()
