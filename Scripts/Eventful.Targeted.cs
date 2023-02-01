@@ -17,6 +17,12 @@ namespace AeLa.Utilities.Eventful
 		/// <param name="e">The name of the event to send</param>
 		public static void Send(GameObject target, string e)
 		{
+			if (!target)
+			{
+				Send(e);
+				return;
+			}
+			
 			if (!targetedListeners.TryGetValue(target, out var listeners)) return;
 			if (!listeners.TryGetValue(e, out var delegates)) return;
 
@@ -34,6 +40,12 @@ namespace AeLa.Utilities.Eventful
 		/// <param name="args">The parameters to send with the event</param>
 		public static void Send(GameObject target, string e, params object[] args)
 		{
+			if (!target)
+			{
+				Send(e, args);
+				return;
+			}
+			
 			if (!targetedListenersWithParams.TryGetValue(target, out var listeners)) return;
 			if (!listeners.TryGetValue(e, out var delegates)) return;
 
@@ -49,11 +61,21 @@ namespace AeLa.Utilities.Eventful
 			GameObject target, string e, Delegate listener, Dictionary<GameObject, ListenerDict> targetsDict
 		)
 		{
+			if (!target)
+			{
+				AddListenerInternal(
+					e, listener,
+					targetedListeners == targetedListenersWithParams ? listenersWithParams : Eventful.listeners
+				);
+
+				return;
+			}
+			
 			if (!targetsDict.ContainsKey(target))
 			{
 				targetsDict.Add(target, new ListenerDict());
 			}
-			
+
 			AddListenerInternal(e, listener, targetsDict[target]);
 		}
 
@@ -83,17 +105,29 @@ namespace AeLa.Utilities.Eventful
 			AddListenerInternal(target, e, listener, targetedListenersWithParams);
 
 		/// <inheritdoc cref="AddListener(GameObject, string, Action)"/>
-		public static void AddListener<T1, T2, T3, T4, T5>(GameObject target, string e, Action<T1, T2, T3, T4, T5> listener) =>
+		public static void AddListener<T1, T2, T3, T4, T5>(
+			GameObject target, string e, Action<T1, T2, T3, T4, T5> listener
+		) =>
 			AddListenerInternal(target, e, listener, targetedListenersWithParams);
 
 		private static void RemoveListenerInternal(
 			GameObject target, string e, Delegate listener, Dictionary<GameObject, ListenerDict> targetedListeners
 		)
 		{
+			if (!target)
+			{
+				RemoveListenerInternal(
+					e, listener,
+					targetedListeners == targetedListenersWithParams ? listenersWithParams : Eventful.listeners
+				);
+
+				return;
+			}
+
 			if (!targetedListeners.TryGetValue(target, out var listeners)) return;
-			
+
 			RemoveListenerInternal(e, listener, listeners);
-			
+
 			// release target reference
 			if (listeners.Count == 0)
 			{
@@ -123,11 +157,15 @@ namespace AeLa.Utilities.Eventful
 			RemoveListenerInternal(target, e, listener, targetedListenersWithParams);
 
 		/// <inheritdoc cref="RemoveListener(GameObject, string, Action)"/>
-		public static void RemoveListener<T1, T2, T3, T4>(GameObject target, string e, Action<T1, T2, T3, T4> listener) =>
+		public static void RemoveListener<T1, T2, T3, T4>(
+			GameObject target, string e, Action<T1, T2, T3, T4> listener
+		) =>
 			RemoveListenerInternal(target, e, listener, targetedListenersWithParams);
 
 		/// <inheritdoc cref="RemoveListener(GameObject, string, Action)"/>
-		public static void RemoveListener<T1, T2, T3, T4, T5>(GameObject target, string e, Action<T1, T2, T3, T4, T5> listener) =>
+		public static void RemoveListener<T1, T2, T3, T4, T5>(
+			GameObject target, string e, Action<T1, T2, T3, T4, T5> listener
+		) =>
 			RemoveListenerInternal(target, e, listener, targetedListenersWithParams);
 
 		/// <summary>
