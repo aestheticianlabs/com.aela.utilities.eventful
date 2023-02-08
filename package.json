@@ -1,6 +1,6 @@
 {
 	"name": "com.aela.utilities.eventful",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"displayName": "Eventful",
 	"description": "A flexible event system for Unity",
 	"unity": "2020.3",
