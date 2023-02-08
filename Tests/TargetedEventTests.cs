@@ -335,5 +335,39 @@ namespace AeLa.Utilities.Eventful.Tests
 
 			Object.Destroy(target);
 		}
+
+		[Test]
+		public void ModifyCallbacksDuringInvokeException()
+		{
+			// add a listener to the event that removes itself during invocation
+			// removal should be queued and executed after event invocation
+			const string eventName = "event";
+			var target = new GameObject();
+			var calls = 0;
+			var queuedListenerCalls = 0;
+
+			void QueuedListener()
+			{
+				queuedListenerCalls++;
+				Eventful.RemoveAllListeners(target);
+			}
+			
+			void Listener()
+			{
+				calls++;
+				Eventful.RemoveListener(target, eventName, Listener);
+				Eventful.AddListener(target, eventName, QueuedListener);
+			}
+			
+			Eventful.AddListener(target, eventName, Listener);
+			Eventful.Send(target, eventName);
+			Eventful.Send(target, eventName);
+			Eventful.Send(target, eventName);
+			
+			Assert.AreEqual(calls, 1);
+			Assert.AreEqual(queuedListenerCalls, 1);
+			
+			Eventful.RemoveAllListeners();
+		}
 	}
 }

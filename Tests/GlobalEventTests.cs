@@ -251,5 +251,38 @@ namespace AeLa.Utilities.Eventful.Tests
 			Assert.AreEqual(1, callCount);
 			callCount = 0;
 		}
+
+		[Test]
+		public void ModifyCallbacksDuringInvokeException()
+		{
+			// add a listener to the event that removes itself during invocation
+			// removal should be queued and executed after event invocation
+			const string eventName = "event";
+			var calls = 0;
+			var queuedListenerCalls = 0;
+
+			void QueuedListener()
+			{
+				queuedListenerCalls++;
+				Eventful.RemoveAllListeners(eventName);
+			}
+			
+			void Listener()
+			{
+				calls++;
+				Eventful.RemoveListener(eventName, Listener);
+				Eventful.AddListener(eventName, QueuedListener);
+			}
+			
+			Eventful.AddListener(eventName, Listener);
+			Eventful.Send(eventName);
+			Eventful.Send(eventName);
+			Eventful.Send(eventName);
+			
+			Assert.AreEqual(calls, 1);
+			Assert.AreEqual(queuedListenerCalls, 1);
+			
+			Eventful.RemoveAllListeners();
+		}
 	}
 }

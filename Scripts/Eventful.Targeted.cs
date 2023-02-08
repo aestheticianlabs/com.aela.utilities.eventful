@@ -26,9 +26,22 @@ namespace AeLa.Utilities.Eventful
 			if (!targetedListeners.TryGetValue(target, out var listeners)) return;
 			if (!listeners.TryGetValue(e, out var delegates)) return;
 
-			foreach (var del in delegates)
+			invocationDepth++;
+			try
 			{
-				del.DynamicInvoke();
+				foreach (var del in delegates)
+				{
+					del.DynamicInvoke();
+				}
+			}
+			finally
+			{
+				invocationDepth--;
+			}
+
+			if (invocationDepth == 0)
+			{
+				ExecuteActionQueue();
 			}
 		}
 
@@ -49,23 +62,43 @@ namespace AeLa.Utilities.Eventful
 			if (!targetedListenersWithParams.TryGetValue(target, out var listeners)) return;
 			if (!listeners.TryGetValue(e, out var delegates)) return;
 
-			foreach (var del in delegates)
+			invocationDepth++;
+			try
 			{
-				del.DynamicInvoke(args);
+				foreach (var del in delegates)
+				{
+					del.DynamicInvoke(args);
+				}
+			}
+			finally
+			{
+				invocationDepth--;
 			}
 
 			Send(target, e);
+
+			if (invocationDepth == 0)
+			{
+				ExecuteActionQueue();
+			}
 		}
 
 		private static void AddListenerInternal(
 			GameObject target, string e, Delegate listener, Dictionary<GameObject, ListenerDict> targetsDict
 		)
 		{
+			// queue add action to be executed after event invocation
+			if (invocationDepth > 0)
+			{
+				queuedActions.Enqueue(() => AddListenerInternal(target, e, listener, targetsDict));
+				return;
+			}
+			
 			if (!target)
 			{
 				AddListenerInternal(
 					e, listener,
-					targetedListeners == targetedListenersWithParams ? listenersWithParams : Eventful.listeners
+					targetedListeners == targetedListenersWithParams ? listenersWithParams : listeners
 				);
 
 				return;
@@ -114,6 +147,13 @@ namespace AeLa.Utilities.Eventful
 			GameObject target, string e, Delegate listener, Dictionary<GameObject, ListenerDict> targetedListeners
 		)
 		{
+			// queue add action to be executed after event invocation
+			if (invocationDepth > 0)
+			{
+				queuedActions.Enqueue(() => RemoveListenerInternal(target, e, listener, targetedListeners));
+				return;
+			}
+			
 			if (!target)
 			{
 				RemoveListenerInternal(
@@ -174,6 +214,13 @@ namespace AeLa.Utilities.Eventful
 		/// <param name="target">The target to remove listeners for</param>
 		public static void RemoveAllListeners(GameObject target)
 		{
+			// queue add action to be executed after event invocation
+			if (invocationDepth > 0)
+			{
+				queuedActions.Enqueue(() => RemoveAllListeners(target));
+				return;
+			}
+			
 			targetedListeners.Remove(target);
 			targetedListenersWithParams.Remove(target);
 		}
@@ -185,6 +232,13 @@ namespace AeLa.Utilities.Eventful
 		/// <param name="e">The event name</param>
 		public static void RemoveAllListeners(GameObject target, string e)
 		{
+			// queue add action to be executed after event invocation
+			if (invocationDepth > 0)
+			{
+				queuedActions.Enqueue(() => RemoveAllListeners(target, e));
+				return;
+			}
+			
 			if (targetedListeners.TryGetValue(target, out var listeners))
 			{
 				listeners.Remove(e);

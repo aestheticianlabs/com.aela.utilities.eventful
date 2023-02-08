@@ -16,9 +16,23 @@ namespace AeLa.Utilities.Eventful
 		{
 			if (!listeners.ContainsKey(e)) return;
 
-			foreach (var del in listeners[e])
+			invocationDepth++;
+
+			try
 			{
-				del.DynamicInvoke();
+				foreach (var del in listeners[e])
+				{
+					del.DynamicInvoke();
+				}
+			}
+			finally
+			{
+				invocationDepth--;
+			}
+
+			if (invocationDepth == 0)
+			{
+				ExecuteActionQueue();
 			}
 		}
 
@@ -31,12 +45,26 @@ namespace AeLa.Utilities.Eventful
 		{
 			if (!listenersWithParams.ContainsKey(e)) return;
 
-			foreach (var del in listenersWithParams[e])
-			{
-				del.DynamicInvoke(args);
-			}
+			invocationDepth++;
 
+			try
+			{
+				foreach (var del in listenersWithParams[e])
+				{
+					del.DynamicInvoke(args);
+				}
+			}
+			finally
+			{
+				invocationDepth--;
+			}
+			
 			Send(e);
+
+			if (invocationDepth == 0)
+			{
+				ExecuteActionQueue();
+			}
 		}
 		
 		/// <summary>
@@ -102,6 +130,13 @@ namespace AeLa.Utilities.Eventful
 		/// <param name="e">The target event</param>
 		public static void RemoveAllListeners(string e)
 		{
+			// queue add action to be executed after event invocation
+			if (invocationDepth > 0)
+			{
+				queuedActions.Enqueue(() => RemoveAllListeners(e));
+				return;
+			}
+			
 			listeners.Remove(e);
 			listenersWithParams.Remove(e);
 		}

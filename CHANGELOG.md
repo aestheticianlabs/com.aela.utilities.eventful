@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [UNRELEASED]
 
 ### Added
+- Queue Add/Remove listener actions if called during event invocation.
 - Support for target on EventfulListener component.
 - Allow EventfulListener to be configured from code.
 - Tests for EventfulListener component.
