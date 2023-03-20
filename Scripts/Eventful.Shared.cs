@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using ListenerDict = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<System.Delegate>>;
 
 namespace AeLa.Utilities.Eventful
