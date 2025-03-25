@@ -43,22 +43,23 @@ namespace AeLa.Utilities.Eventful
 		/// <param name="args">The parameters to send with the event</param>
 		public static void Send(string e, params object[] args)
 		{
-			if (!listenersWithParams.ContainsKey(e)) return;
-
-			invocationDepth++;
-
-			try
+			if (listenersWithParams.TryGetValue(e, out var listeners))
 			{
-				foreach (var del in listenersWithParams[e])
+				invocationDepth++;
+
+				try
 				{
-					del.DynamicInvoke(args);
+					foreach (var del in listeners)
+					{
+						del.DynamicInvoke(args);
+					}
+				}
+				finally
+				{
+					invocationDepth--;
 				}
 			}
-			finally
-			{
-				invocationDepth--;
-			}
-			
+
 			Send(e);
 
 			if (invocationDepth == 0)

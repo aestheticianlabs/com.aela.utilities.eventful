@@ -44,6 +44,27 @@ namespace AeLa.Utilities.Eventful.Tests
 			Eventful.RemoveAllListeners();
 		}
 
+		/// <summary>
+		/// If an event is sent with parameters but it only has parameterless listeners,
+		/// we expect the listeners to still get the callback.
+		/// </summary>
+		[Test]
+		public void EventWithParameters_ListenerWithout()
+		{
+			const string eventName = "event";
+			const int value = 5;
+
+			var delegateCalled = false;
+
+			Eventful.AddListener(eventName, () => delegateCalled = true);
+
+			Eventful.Send(eventName, value);
+
+			Assert.True(delegateCalled);
+
+			Eventful.RemoveAllListeners();
+		}
+
 		[Test]
 		public void ListenWithParameters()
 		{
